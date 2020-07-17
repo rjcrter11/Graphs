@@ -4,18 +4,17 @@ from world import World
 
 import random
 from ast import literal_eval
-from collections import deque
 
 # Load world
 world = World()
 
 
 # You may uncomment the smaller graphs for development and testing purposes.
-map_file = "maps/test_line.txt"
+#map_file = "maps/test_line.txt"
 #map_file = "maps/test_cross.txt"
-# map_file = "maps/test_loop.txt"
+#map_file = "maps/test_loop.txt"
 #map_file = "maps/test_loop_fork.txt"
-#map_file = "maps/main_maze.txt"
+map_file = "maps/main_maze.txt"
 
 # Loads the map into a dictionary
 room_graph = literal_eval(open(map_file, "r").read())
@@ -25,65 +24,73 @@ world.load_graph(room_graph)
 world.print_rooms()
 
 player = Player(world.starting_room)
-start = player.current_room
 
 # Fill this out with directions to walk
 # traversal_path = ['n', 'n']
 
 traversal_path = []
-
 reverse_traversal = []
-
 visited = {}
+go_back = {"n": "s", "s": "n", "e": "w", "w": "e"}
 
-go_back = {
-    'n': 's',
-    's': 'n',
-    'e': 'w',
-    'w': 'e'
-}
-current_room = start
+current_room = player.current_room
 
 
-if current_room.id not in visited:
+def create_visited_dictionary(room, exits):
+    if room.id not in visited:
+        for ext in room.get_exits():
+            exits[ext] = "?"
+            visited[room.id] = exits
 
-    room_exits = current_room.get_exits()
-    print("Exits: ", room_exits)
-    exits = {}
-    for ext in room_exits:
-        exits[ext] = "?"
-        visited[current_room.id] = exits
-    print("Visited: ", visited)
 
-while len(visited) < len(room_graph) - 1:
-    current = current_room.id
-    exit_room = visited[current]
-    print("Exits in while loop", exit_room)
+def get_next_move(room):
+    exit_room = visited[room.id]
 
     for move in exit_room:
-        if exit_room[move] == '?' and current_room.get_room_in_direction(move) not in visited:
-            next_room = move
-        else:
-            next_room = None
-    if next_room is None:
-        break  # go backwards to look for an exit
-    else:
-        player.travel(next_room)
-        traversal_path.append(next_room)
+        if exit_room[move] == '?' and room.get_room_in_direction(move).id not in visited:
+            return move
 
-        reverse_traversal.append(go_back[next_room])
-        prev_room = current_room
+    return None
+
+
+def travel_maze(direction):
+    player.travel(direction)
+    traversal_path.append(direction)
+    reverse_traversal.append(go_back[direction])
+
+
+def find_new_exits(direction):
+    while direction is None:
+        back = reverse_traversal.pop()
+        traversal_path.append(back)
+        player.travel(back)
+        next_room = player.current_room
+
+        if '?' in visited[next_room.id].values():
+            return next_room
+
+
+while len(visited) < len(room_graph):
+    exits = {}
+    create_visited_dictionary(current_room, exits)
+
+    next_move = get_next_move(current_room)
+
+    if next_move is not None:
+        travel_maze(next_move)
+        previous_room = current_room
         current_room = player.current_room
-        print("Previous room: ", prev_room.id)
 
-        next_exits = {}
-        for ext in current_room.get_exits():
-            next_exits[ext] = '?'
-            visited[current_room.id] = next_exits
+        new_exits = {}
+        create_visited_dictionary(current_room, new_exits)
+
+        visited[previous_room.id][next_move] = current_room.id
+        visited[current_room.id][go_back[next_move]] = previous_room.id
+
+    else:
+        current_room = find_new_exits(next_move)
 
 
-print("Traversal_path", traversal_path)
-print("Visited: ", visited)
 # TRAVERSAL TEST
 visited_rooms = set()
 player.current_room = world.starting_room

@@ -83,14 +83,26 @@ dict[node] = edges
 
 Plan: 
 
-- while length of visited is less than length of room_graph (don't include the already added first room)
+- while length of visited is less than length of room_graph 
     - Check if current_room.id is not in visited dict
       - call get_exits on current_room to add to dict
-    - Look at exits on each loop, if they arent in visited
+      - get the direction to move 
+    - If exits != None
       - move there
-      - else = None
-      - if None, go backwards
-      - else, travel to next room
+      - append direction to traversal list
+      - setup for backtracking
+      - append reverse direction to reverse traversal list
+      - update room references
+      - set new exits
+      - update directions
+    - Else 
+      - go backwards to find new exits
+      - pop from reverse traversal
+      - append it to traversal
+      - make player travel backwards til there's a room with '?'
+
+      
+     
       
 
     
