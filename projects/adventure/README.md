@@ -59,9 +59,50 @@ My best path is 957 moves. Can you find a shorter path?
 
 
 ## Rubric
-| OBJECTIVE | TASK | 1 - DOES NOT MEET Expectations | 2 - MEETS Expectations | 3 - EXCEEDS Expectations | SCORE |
-| ---------- | ----- | ------- | ------- | ------- | -- |
-| _Student can demonstrate applied knowledge of Graph Theory by traversing a large map_ | Complete traversal of a large Graph | Student unable to produce a valid traversal path of 2000 moves or less | Student is able to produce a valid traversal path between 960 and 2000 | Student produces a valid traversal path of 959 moves or less |  |
-| **FINAL SCORE** | | **0-1** | **2** | **3** |  |
+| OBJECTIVE                                                                             | TASK                                | 1 - DOES NOT MEET Expectations                                         | 2 - MEETS Expectations                                                 | 3 - EXCEEDS Expectations                                     | SCORE |
+| ------------------------------------------------------------------------------------- | ----------------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------ | ----- |
+| _Student can demonstrate applied knowledge of Graph Theory by traversing a large map_ | Complete traversal of a large Graph | Student unable to produce a valid traversal path of 2000 moves or less | Student is able to produce a valid traversal path between 960 and 2000 | Student produces a valid traversal path of 959 moves or less |       |
+| **FINAL SCORE**                                                                       |                                     | **0-1**                                                                | **2**                                                                  | **3**                                                        |       |
 
 
+Translating
+Nodes: rooms
+Edges: exits leading to other rooms 
+
+
+dict[node] = edges
+5: {'n': 0, 's': '?'} --> go south
+6: {'n': 5, 'w':'?'} --> now on 5 we know 's': 6
+
+- Make a graph to hold   room_id : [exit directions]
+  - fill this graph out as I go by running get_exits() on each visited room
+- Every time a step is taken, the direction of the step appended to traversal_path list
+- Need to be able to traverse backwards
+  - {'n':'s', 's':'n', 'e':'w', 'w':'e'}
+  - reverse_path list 
+
+Plan: 
+
+- while length of visited is less than length of room_graph 
+    - Check if current_room.id is not in visited dict
+      - call get_exits on current_room to add to dict
+      - get the direction to move 
+    - If exits != None
+      - move there
+      - append direction to traversal list
+      - setup for backtracking
+      - append reverse direction to reverse traversal list
+      - update room references
+      - set new exits
+      - update directions
+    - Else 
+      - go backwards to find new exits
+      - pop from reverse traversal
+      - append it to traversal
+      - make player travel backwards til there's a room with '?'
+
+      
+     
+      
+
+    
